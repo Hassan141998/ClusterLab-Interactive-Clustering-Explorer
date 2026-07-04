@@ -1,29 +1,16 @@
-"""
-Vercel Python Serverless Function
-Route: GET /api/health
-"""
-import sys
-import os
-
+import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
-from _utils import cors_response, options_response, get_conn
+from _utils import ok, opts, get_conn
+from http.server import BaseHTTPRequestHandler
 
-
-def handler(request, response=None):
+def handler(request, response):
     if request.method == "OPTIONS":
-        return options_response()
-
-    db_ok = False
-    try:
-        conn = get_conn()
-        if conn:
-            conn.close()
-            db_ok = True
-    except Exception:
-        pass
-
-    return cors_response(200, {
-        "status":  "ok",
-        "version": "2.0.0",
-        "db":      "connected" if db_ok else "not configured",
-    })
+        response.status_code = 200
+        return
+    conn = get_conn()
+    db = "not_configured"
+    if conn:
+        try: conn.close(); db = "connected"
+        except: db = "error"
+    response.status_code = 200
+    return ok({"status":"ok","version":"2.0.0","db":db})

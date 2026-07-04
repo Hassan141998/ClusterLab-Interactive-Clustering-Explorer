@@ -1,34 +1,27 @@
-"""
-Vercel Python Serverless Function
-Route: POST /api/cluster
-"""
-import json
-import sys
-import os
+import sys, os, json
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from _utils import ok, err, opts, parse_body, run_clustering
 
-sys.path.insert(0, os.path.dirname(__file__))
-from _utils import cors_response, options_response, run_clustering
-
-
-def handler(request, response=None):
-    # Vercel passes a Request-like object
+def handler(request, response):
     if request.method == "OPTIONS":
-        return options_response()
-
+        response.status_code = 200
+        return
     if request.method != "POST":
-        return cors_response(405, {"error": "Method not allowed"})
-
+        response.status_code = 405
+        return err("Method not allowed")
     try:
-        body = json.loads(request.body)
-        dataset   = body.get("dataset", "blobs")
-        algorithm = body.get("algorithm", "kmeans")
-        params    = body.get("params", {})
-        csv_data  = body.get("csv_data")
-
-        result = run_clustering(dataset, algorithm, params, csv_data)
-        return cors_response(200, result)
-
+        body = parse_body(request)
+        result = run_clustering(
+            body.get("dataset","blobs"),
+            body.get("algorithm","kmeans"),
+            body.get("params",{}),
+            body.get("csv_data")
+        )
+        response.status_code = 200
+        return ok(result)
     except ValueError as e:
-        return cors_response(400, {"error": str(e)})
+        response.status_code = 400
+        return err(str(e))
     except Exception as e:
-        return cors_response(500, {"error": str(e)})
+        response.status_code = 500
+        return err(str(e))

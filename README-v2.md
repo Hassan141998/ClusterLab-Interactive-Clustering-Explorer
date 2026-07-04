@@ -208,7 +208,7 @@ vercel dev
 cd backend
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
+cp .env .env
 # Edit .env: DATABASE_URL=postgresql://...
 python main.py
 # → http://localhost:8000  (FastAPI + Swagger at /docs)
