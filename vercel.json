@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/.next",
+  "installCommand": "cd frontend && npm install",
+  "framework": "nextjs",
+  "functions": {
+    "api/**/*.py": {
+      "runtime": "python3.12",
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    { "src": "/api/health",                "dest": "/api/health.py" },
+    { "src": "/api/datasets",              "dest": "/api/datasets.py" },
+    { "src": "/api/csv-upload",            "dest": "/api/csv-upload.py" },
+    { "src": "/api/cluster/compare",       "dest": "/api/cluster/compare.py" },
+    { "src": "/api/cluster",               "dest": "/api/cluster/index.py" },
+    { "src": "/api/experiments/save",      "dest": "/api/experiments/save.py" },
+    { "src": "/api/experiments/delete",    "dest": "/api/experiments/delete.py" },
+    { "src": "/api/experiments",           "dest": "/api/experiments/index.py" },
+    { "src": "/(.*)",                      "dest": "/frontend/.next/$1" }
+  ],
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "NEXT_PUBLIC_API_URL": ""
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": ""
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin",  "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+      ]
+    }
+  ]
+}
